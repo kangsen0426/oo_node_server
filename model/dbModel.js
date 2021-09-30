@@ -22,6 +22,7 @@ let FriendSchema = new Schema({
     userID:{type:Schema.Types.ObjectId,ref:"User"},             //用户id
     friendID:{type:Schema.Types.ObjectId,ref:"User"},             //好友id
     state:{type:Number},               // 好友状态 0 以为好友   1 正在申请  2 不是好友
+    nickname:{type:String},         //昵称
     time:{type:Date},               //生成时间
 
 })
