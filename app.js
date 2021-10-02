@@ -1,6 +1,6 @@
 const express = require('express')
 const bodyParser = require("body-parser")
-
+const jwt = require("./dao/jwt")
 const app = express()
 const port = 3000
 
@@ -21,6 +21,28 @@ app.use((req, res, next) => {
 //解析前端数据
 app.use(bodyParser.json());
 
+//验证token
+app.use((req,res,next)=>{
+  if(typeof(req.body.token) != 'undefined'){
+
+    //验证token
+    let token = req.body.token
+    let tokenMatch = jwt.verifyToken(token)
+
+    if(tokenMatch){
+      //通过验证
+      next()
+    }else{
+      //验证不通过
+      res.send({
+        status:300,
+        msg:'token验证不通过'
+      })
+    }
+  }else{
+    next()
+  }
+})
 
 require("./router/index")(app)
 

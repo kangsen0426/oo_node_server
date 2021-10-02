@@ -12,7 +12,7 @@ let UserSchema = new Schema({
     birth:{type:Date},              //生日
     phone:{type:Number},                //电话
     explain:{type:String},                   //介绍
-    imgurl:{type:String,default:'user.png'}, //用户头像
+    imgurl:{type:String,default:`https://picsum.photos/seed/${new Date()}/400/600`}, //用户头像
     time:{type:Date},               //注册日期
 
 })

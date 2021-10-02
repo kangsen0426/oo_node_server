@@ -7,6 +7,7 @@ const jwt = require("../dao/jwt")
 
 
 const User = dbModel.model('User');
+const Friend = dbModel.model('Friend');
 
 
 //新建用户
@@ -161,3 +162,65 @@ exports.userMatch = (data, pwd, res) => {
     })
 }
 
+//搜索用户
+exports.searchUser = (data, res) => {
+    let wherestr = { $or: [{ 'name': { $regex: data.name } }, { 'email': { $regex: data.email } }] }
+    let out = { 'name': 1, 'imgurl': 1, 'email': 1 }
+
+
+    console.log(data);
+
+
+    User.find(wherestr, out, (err, result) => {
+
+        console.log(result);
+
+
+        if (err) {
+            res.send({
+                status: 500,
+                msg: err
+            })
+        } else {
+            res.send({
+                status: 200,
+                msg: result
+            })
+        }
+
+    })
+
+
+}
+
+//判断是否为好友
+exports.isFriend = (uid, fid, res) => {
+    let wherestr = { 'userID': uid, 'friendID': fid, 'state': 0 }
+
+    Friend.findOne(wherestr, (err, result) => {
+        console.log(result);
+
+
+        if (err) {
+            res.send({
+                status: 500,
+                msg: err
+            })
+        } else {
+            if (result) {
+                //是好友
+                res.send({
+                    status: 200,
+                    msg: '是好友'
+                })
+            } else {
+                res.send({
+                    status: 400,
+                    msg: '不是好友'
+                })
+            }
+        }
+
+
+    })
+}

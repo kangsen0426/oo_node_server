@@ -34,7 +34,7 @@ exports.emailSingUp = function (email, res) {
       console.log(err)
     } else {
       console.log('邮箱发送成功！');
-      res.send('邮箱发送成功！')
+      // res.send('邮箱发送成功！')
       console.log(msg);
     }
   })

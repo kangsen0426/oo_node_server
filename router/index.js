@@ -2,6 +2,7 @@ const dbServe = require("../dao/dbServe")
 const emailServer = require("../dao/emailServer")
 const singup = require("../server/singUp")
 const singin = require("../server/singin")
+const search = require("../server/search")
 
 
 module.exports = function (app) {
@@ -35,5 +36,17 @@ module.exports = function (app) {
      app.post("/singin/match",(req,res)=>{
         //验证用户
         singin.singIn(req,res)
+    })
+
+     //搜索用户
+     app.post("/search/user",(req,res)=>{
+        //验证用户
+        search.searchUser(req,res);
+    })
+
+       //验证是否为好友
+       app.post("/search/isfriend",(req,res)=>{
+        //验证用户
+        search.isFriend(req,res);
     })
 }
