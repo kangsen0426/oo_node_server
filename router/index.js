@@ -1,6 +1,7 @@
 const dbServe = require("../dao/dbServe")
 const emailServer = require("../dao/emailServer")
 const singup = require("../server/singUp")
+const singin = require("../server/singin")
 
 
 module.exports = function (app) {
@@ -28,5 +29,11 @@ module.exports = function (app) {
     app.post("/singup/judge",(req,res)=>{
         //注册用户
         singup.judgeValue(req,res);
+    })
+
+     //登入
+     app.post("/singin/match",(req,res)=>{
+        //验证用户
+        singin.singIn(req,res)
     })
 }

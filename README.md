@@ -21,8 +21,3 @@
 | 用户名 | name  | String | 1    |
 | 邮箱   | email | String | 1    |
 
-
-
-+ 什么
-  + 
-+ 不是吧
