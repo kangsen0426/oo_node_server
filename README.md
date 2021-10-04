@@ -99,7 +99,7 @@
 | 好友id | fid                      | String | 1    |
 |        | 两参数放在data对象中传入 |        |      |
 
-##### 删除好友
+##### 拒绝或/删除好友
 
 *地址： /user/deleteFriend*
 
@@ -108,4 +108,41 @@
 | 用户id | uid                      | String | 1    |
 | 好友id | fid                      | String | 1    |
 |        | 两参数放在data对象中传入 |        |      |
+
+##### 文件上传
+
+*地址： /files/upload*
+
+|        | 参数  | 类型   | 必需 |
+| ------ | ----- | ------ | ---- |
+| 路径   | url   | String | 1    |
+| 验证   | token | String | 1    |
+| 文件名 | name  | String | 1    |
+
+##### 获取用户列表
+
+*地址： /user/getusers*
+
+|          | 参数  | 类型   | 必需 |
+| -------- | ----- | ------ | ---- |
+| 用户id   | uid   | String | 1    |
+| 好友状态 | state | Number | 1    |
+
+##### 获取消息
+
+*地址：/user/getOneMessage*
+
+|        | 参数 | 类型   | 必需 |
+| ------ | ---- | ------ | ---- |
+| 用户id | uid  | String | 1    |
+| 好友id | fid  | String | 1    |
+
+##### 未读消息数量
+
+*地址：/user/unreadMsg*
+
+|        | 参数 | 类型   | 必需 |
+| ------ | ---- | ------ | ---- |
+| 用户id | uid  | String | 1    |
+| 好友id | fid  | String | 1    |
 

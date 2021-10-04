@@ -45,6 +45,7 @@ app.use((req,res,next)=>{
 })
 
 require("./router/index")(app)
+require("./router/index")(app)
 
 app.get('/', (req, res) => {
     res.send('Hello World!')

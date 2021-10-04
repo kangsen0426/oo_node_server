@@ -457,7 +457,7 @@ exports.applyFriend = (data, res) => {
             } else {
                 //已经申请了好友
                 this.upFriendLastTime(data)
-                
+
             }
 
             //添加申请消息
@@ -467,7 +467,7 @@ exports.applyFriend = (data, res) => {
 }
 
 //更新好友状态
-exports.updateFriendState = (data,res)=>{
+exports.updateFriendState = (data, res) => {
     let wherestr = {
         $or: [
             {
@@ -481,16 +481,16 @@ exports.updateFriendState = (data,res)=>{
         ]
     }
 
-    Friend.updateMany(wherestr, {'state':0}, (err, result) => {
+    Friend.updateMany(wherestr, { 'state': 0 }, (err, result) => {
         if (err) {
-           res.send({
-               status:500,
-               msg:err
-           })
+            res.send({
+                status: 500,
+                msg: err
+            })
         } else {
             res.send({
-                status:200,
-                msg:result
+                status: 200,
+                msg: result
             })
         }
     })
@@ -498,7 +498,7 @@ exports.updateFriendState = (data,res)=>{
 
 
 //拒绝或/删除好友
-exports.deleteFriend = (data,res)=>{
+exports.deleteFriend = (data, res) => {
     let wherestr = {
         $or: [
             {
@@ -512,16 +512,123 @@ exports.deleteFriend = (data,res)=>{
         ]
     }
 
-    Friend.deleteMany(wherestr, {'state':0}, (err, result) => {
+    Friend.deleteMany(wherestr, { 'state': 0 }, (err, result) => {
         if (err) {
-           res.send({
-               status:500,
-               msg:err
-           })
+            res.send({
+                status: 500,
+                msg: err
+            })
         } else {
             res.send({
-                status:200,
-                msg:result
+                status: 200,
+                msg: result
+            })
+        }
+    })
+}
+
+//按要求获取用户列表
+exports.getUsers = (uid, state, res) => {
+    let query = Friend.find({});
+
+    //条件查询
+    query.where({
+        'userID': uid,
+        'state': state
+    })
+
+    //查找friendID 关联的user对象
+    query.populate('friendID');
+    //排序方式 
+    query.sort({
+        'lastTime': -1
+    })
+    //查询结果
+    query.exec().then((e) => {
+        let result = e.map((ver) => {
+            return {
+                id: ver.friendID._id,
+                name: ver.friendID.name,
+                nickName: ver.nickName,
+                imgurl: ver.friendID.imgurl,
+                lastTime: ver.lastTime
+            }
+        })
+
+        res.send({
+            status: 200,
+            msg: result
+        })
+    }).catch((err) => {
+        res.send({
+            status: 500,
+            msg: err
+        })
+    })
+}
+
+//获取一对一消息
+exports.getOneMsg = (uid, fid, res) => {
+    let query = Message.findOne({});
+
+    //条件查询
+    query.where({
+        $or: [
+            {
+                'userID': uid,
+                'friendID': fid
+            },
+            {
+                'userID': fid,
+                'friendID': uid
+            },
+        ]
+    })
+
+    //排序方式 
+    query.sort({
+        'time': -1
+    })
+    //查询结果
+    query.exec().then((e) => {
+
+        let result = {
+            message: e.message,
+            time: e.time,
+            type: e.type
+        }
+
+        res.send({
+            status: 200,
+            msg: result
+        })
+    }).catch((err) => {
+        res.send({
+            status: 500,
+            msg: err
+        })
+    })
+}
+
+//好友未读消息数量
+exports.unreadMsg = (uid, fid, res) => {
+    let wherestr = {
+        'userID': uid,
+        'friendID': fid,
+        'state':0
+    }
+
+
+    Message.countDocuments(wherestr, (err, result) => {
+        if (err) {
+            res.send({
+                status: 500,
+                msg: err
+            })
+        } else {
+            res.send({
+                status: 200,
+                msg: result
             })
         }
     })

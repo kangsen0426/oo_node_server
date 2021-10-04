@@ -4,6 +4,7 @@ const singin = require("../server/singin")
 const search = require("../server/search")
 const userdetail = require("../server/userdetail")
 const friend = require("../server/friend")
+const index = require("../server/index")
 
 
 module.exports = function (app) {
@@ -59,32 +60,47 @@ module.exports = function (app) {
 
     //用户信息修改
     app.post("/user/update", (req, res) => {
-        
+
         userdetail.userUpdate(req, res);
     })
 
     //好友昵称修改
     app.post("/user/markname", (req, res) => {
-       
+
         userdetail.friendMarkNickName(req, res);
     })
 
     //好友申请
     app.post("/user/friendapply", (req, res) => {
-       
-        friend.applyFriend(res,req);
+
+        friend.applyFriend(res, req);
     })
 
-     //好友状态修改
-     app.post("/user/updateFriendState", (req, res) => {
-       
-        friend.updateFriendState(res,req);
+    //好友状态修改
+    app.post("/user/updateFriendState", (req, res) => {
+
+        friend.updateFriendState(res, req);
     })
 
-     //拒绝/删除好友
-     app.post("/user/deleteFriend", (req, res) => {
-       
-        friend.deleteFriend(res,req);
+    //拒绝/删除好友
+    app.post("/user/deleteFriend", (req, res) => {
+
+        friend.deleteFriend(res, req);
     })
 
+    //获取好友列表
+    app.post("/user/getusers", (req, res) => {
+
+        index.getUser(req, res)
+    })
+    //获取好友列表
+    app.post("/user/getOneMessage", (req, res) => {
+
+        index.getOneMsg(req, res)
+    })
+    //未读消息数量
+    app.post("/user/unreadMsg", (req, res) => {
+
+        index.unreadMsg(req, res)
+    })
 }
