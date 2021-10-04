@@ -9,12 +9,11 @@ let UserSchema = new Schema({
     psw:{type:String},              //密码
     email:{type:String},             //邮箱
     sex:{type:String,default:'asexual'}, //性别，默认为中性
-    birth:{type:Date},              //生日
+    birth:{type:String},              //生日
     phone:{type:Number},                //电话
-    explain:{type:String},                   //介绍
+    explain:{type:String,default:`什么也没有~`},                   //介绍
     imgurl:{type:String,default:`https://picsum.photos/seed/${new Date()}/400/600`}, //用户头像
     time:{type:Date},               //注册日期
-
 })
 
 //好友关系表
@@ -24,6 +23,7 @@ let FriendSchema = new Schema({
     state:{type:Number},               // 好友状态 0 以为好友   1 正在申请  2 不是好友
     nickname:{type:String},         //昵称
     time:{type:Date},               //生成时间
+    lastTime:{type:Date}        //最后一条消息时间
 
 })
 
@@ -33,7 +33,7 @@ let MessageSchema = new Schema({
     friendID:{type:Schema.Types.ObjectId,ref:"User"},             //好友id
     message:{type:String},                          //内容
     type:{type:Number},         //消息类型  0 文字  1 图片  2 视频 3 音频 4 位置
-    state:{type:Number},                            // 消息状态 0 已读   1 未读
+    state:{type:Number},                            // 消息状态 0 未读   1 已经读
     time:{type:Date},               //发送时间
 
 })

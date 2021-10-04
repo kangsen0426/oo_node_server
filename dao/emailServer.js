@@ -30,7 +30,7 @@ exports.emailSingUp = function (email, res) {
   //发送邮件
   transporter.sendMail(option, (err, msg) => {
     if (err) {
-      res.send(err)
+      // res.send(err)
       console.log(err)
     } else {
       console.log('邮箱发送成功！');

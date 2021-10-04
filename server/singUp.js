@@ -1,5 +1,4 @@
 const dbServer = require("../dao/dbServe")
-const emailServer = require("../dao/emailServer")
 
 
 //用户注册
@@ -18,8 +17,7 @@ exports.singUp = (req,res)=>{
 
     dbServer.buildUser(name,mail,pwd,res);
 
-    //发送邮件
-    emailServer.emailSingUp(mail,res)
+  
 
 }
 

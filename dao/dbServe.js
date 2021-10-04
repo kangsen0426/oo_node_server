@@ -6,8 +6,12 @@ const bcrypt = require("../dao/bcrypt")
 const jwt = require("../dao/jwt")
 
 
+const emailServer = require("../dao/emailServer")
+
+
 const User = dbModel.model('User');
 const Friend = dbModel.model('Friend');
+const Message = dbModel.model("Message")
 
 
 //新建用户
@@ -31,6 +35,9 @@ exports.buildUser = (name, mail, psw, res) => {
                 msg: err
             })
         } else {
+            //发送邮件
+            emailServer.emailSingUp(mail, res)
+
             res.send({
                 status: 200,
                 msg: "注册成功！"
@@ -222,5 +229,300 @@ exports.isFriend = (uid, fid, res) => {
         }
 
 
+    })
+}
+
+
+//用户详情
+exports.userDetail = (id, res) => {
+    let wherestr = { '_id': id }
+    let out = { 'psw': 0 };
+
+    User.findOne(wherestr, out, (err, result) => {
+
+        if (err) {
+            res.send({
+                status: 500,
+                msg: err
+            })
+        } else {
+            res.send({
+                status: 200,
+                msg: result
+            })
+        }
+
+    })
+
+}
+
+//用户信息修改
+exports.userUpdate = (data, res) => {
+    let updatestr = {}
+
+    //判断是否有密码
+    if (typeof (data.pwd) != 'undefined') {
+        //有密码
+        User.find({ '_id': data.id }, { 'psw': 1 }, (err, result) => {
+            if (err) {
+                res.send({
+                    status: 500,
+                    msg: err
+                })
+            } else {
+                if (result == '') {
+                    res.send({
+                        status: 400,
+                        msg: '密码错误'
+                    })
+                } else {
+                    result.map((e) => {
+                        const pwdMatch = bcrypt.verfication(data.pwd, e.psw);
+
+                        if (pwdMatch) {
+                            //密码验证成功
+                            //如果为修改密码先加密
+                            if (data.type == 'psw') {
+                                //密码加密
+                                let password = bcrypt.encryption(psw)
+                                updatestr[data.type] = password
+
+                            } else {
+                                updatestr[data.type] = data.data;
+
+                            }
+
+                            User.findByIdAndUpdate(data.id, updatestr, (err, resu) => {
+                                if (err) {
+                                    res.send({
+                                        status: 500,
+                                        msg: err
+                                    })
+                                } else {
+                                    //修改成功
+                                    res.send({
+                                        status: 200,
+                                        msg: result
+                                    })
+                                }
+                            })
+                        } else {
+                            //密码匹配失败
+                            res.send({
+                                status: 400,
+                                msg: "密码匹配失败"
+                            })
+                        }
+                    })
+                }
+            }
+        })
+    } else {
+
+        updatestr[data.type] = data.data;
+
+        User.findByIdAndUpdate(data.id, updatestr, (err, resu) => {
+            if (err) {
+                res.send({
+                    status: 500,
+                    msg: err
+                })
+            } else {
+                //修改成功
+                res.send({
+                    status: 200,
+                    msg: resu
+                })
+            }
+        })
+    }
+}
+
+//修改好友昵称
+exports.friendMarkNickName = (data, res) => {
+    let wherestr = { 'userID': data.uid, 'friendID': data.fid };
+    let updatestr = { 'nickname': data.name };
+
+    Friend.updateOne(wherestr, updatestr, (err, result) => {
+        if (err) {
+            res.send({
+                status: 500,
+                msg: err
+            })
+        } else {
+            //修改成功
+            res.send({
+                status: 200,
+                msg: result
+            })
+        }
+    })
+}
+
+//添加好友表
+exports.buildFriend = (uid, fid, state, res) => {
+    let data = {
+        userID: uid,
+        friendID: fid,
+        state: state,
+        time: new Date(),
+        lastTime: new Date()
+    }
+
+    let friend = new Friend(data)
+
+    friend.save((err, result) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(result);
+        }
+    })
+}
+
+//好友最后通讯时间
+exports.upFriendLastTime = (data) => {
+    let wherestr = {
+        $or: [
+            {
+                'userID': data.uid,
+                'friendID': data.fid
+            },
+            {
+                'userID': data.fid,
+                'friendID': data.uid
+            },
+        ]
+    }
+
+    let updatestr = {
+        'lastTime': new Date()
+    }
+
+    Friend.updateMany(wherestr, updatestr, (err, result) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(result);
+        }
+    })
+}
+
+//添加一对一消息
+exports.insertMessage = (uid, fid, msg, type, res) => {
+    let data = {
+        userID: uid,
+        friendID: fid,
+        message: msg,
+        time: new Date(),
+        state: 0,
+        type: type
+    }
+
+    let message = new Message(data);
+
+    message.save((err, result) => {
+        if (err) {
+            res.send({
+                status: 500,
+                msg: err
+            })
+        } else {
+            res.send({
+                status: 200,
+                msg: result
+            })
+        }
+    })
+}
+
+//好友申请
+exports.applyFriend = (data, res) => {
+    //判断是否已经申请过
+    let wherestr = {
+        'userID': data.uid,
+        'friendID': data.fid,
+    }
+    Friend.countDocuments(wherestr, (err, result) => {
+        if (err) {
+            res.send({
+                status: 500,
+                msg: err
+            })
+        } else {
+            //如果result为 0 则是第一次申请
+            if (result === 0) {
+                this.buildFriend(data.uid, data.fid, 2)
+                this.buildFriend(data.fid, data.uid, 1)
+            } else {
+                //已经申请了好友
+                this.upFriendLastTime(data)
+                
+            }
+
+            //添加申请消息
+            this.insertMessage(data.uid, data.fid, data.msg, 0, res)
+        }
+    })
+}
+
+//更新好友状态
+exports.updateFriendState = (data,res)=>{
+    let wherestr = {
+        $or: [
+            {
+                'userID': data.uid,
+                'friendID': data.fid
+            },
+            {
+                'userID': data.fid,
+                'friendID': data.uid
+            },
+        ]
+    }
+
+    Friend.updateMany(wherestr, {'state':0}, (err, result) => {
+        if (err) {
+           res.send({
+               status:500,
+               msg:err
+           })
+        } else {
+            res.send({
+                status:200,
+                msg:result
+            })
+        }
+    })
+}
+
+
+//拒绝或/删除好友
+exports.deleteFriend = (data,res)=>{
+    let wherestr = {
+        $or: [
+            {
+                'userID': data.uid,
+                'friendID': data.fid
+            },
+            {
+                'userID': data.fid,
+                'friendID': data.uid
+            },
+        ]
+    }
+
+    Friend.deleteMany(wherestr, {'state':0}, (err, result) => {
+        if (err) {
+           res.send({
+               status:500,
+               msg:err
+           })
+        } else {
+            res.send({
+                status:200,
+                msg:result
+            })
+        }
     })
 }
